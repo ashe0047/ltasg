@@ -1,10 +1,9 @@
-from transport.transport import Transport
-from constants import TransportType
-from typing import Literal
+from ..transport.transport import Transport
+from ..constants import TransportType
 
 class Train(Transport):
-    def __init__(self, api_key) -> None:
-        super().__init__(api_key)
+    def __init__(self, base_url, api_key) -> None:
+        super().__init__(base_url=base_url,api_key= api_key)
         self.train_services = self.transport_services[TransportType.TRAIN]
 
     async def service_alerts(self):

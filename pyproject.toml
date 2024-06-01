@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "ltasg"
+version = "0.0.6"
+authors = [
+  { name="Aw Sheng Xiang", email="awshengxiang@hotmail.com" },
+]
+description = "A LTA Datamall API Wrapper Library for Python"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "aiohttp >= 3.9.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/ashe/ltasg"
+Issues = "https://github.com/ashe/ltasg/issues"

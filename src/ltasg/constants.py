@@ -6,7 +6,6 @@ class TransportType(Enum):
     TRAIN = "mrt"
     TAXI = "taxi"
 
-
 LTA_SERVICES = {
     "PUBLIC_TRANSPORT_SERVICES": {
         TransportType.BUS: {
