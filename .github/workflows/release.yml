@@ -1,5 +1,5 @@
 name: Publish LTA SG package to PyPI
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: ${{ github.actor }} is publishing to PyPI 🚀
 on: [push]
 jobs:
   build:
