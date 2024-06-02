@@ -1,8 +1,10 @@
 # ltasg
 
+[![Build Status](https://github.com/ashe0047/ltasg/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/ashe0047/your-package/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://img.shields.io/pypi/v/ltasg?logo=pypi)](https://badge.fury.io/py/your-package)
 [![Python versions](https://img.shields.io/pypi/pyversions/ltasg.svg?logo=python)](https://pypi.org/project/ltasg/)
+
 <!-- [![Documentation Status](https://readthedocs.org/projects/your-package/badge/?version=latest)](https://your-package.readthedocs.io/en/latest/?badge=latest) -->
 
 A LTA Datamall API Wrapper Library for Python
