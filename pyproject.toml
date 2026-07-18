@@ -5,15 +5,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ltasg"
-version = "0.0.6.post2"
+dynamic = ["version"]
 authors = [
   { name="Aw Sheng Xiang", email="awshengxiang@hotmail.com" },
 ]
 description = "A LTA Datamall API Wrapper Library for Python"
 readme = "README.md"
-requires-python = ">=3.8"
+license = "MIT"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -24,4 +27,41 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/ashe/ltasg"
-Issues = "https://github.com/ashe/ltasg/issues"
+Source = "https://github.com/ashe0047/ltasg"
+
+[tool.hatch.version]
+path = "src/ltasg/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ltasg"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "ltasg_e2e: opt-in live LTA DataMall end-to-end tests",
+    "slow: paginated endpoints that take 30s+ to fetch all pages",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src/ltasg", "test"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "TID"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+explicit_package_bases = true
+
+[tool.semantic_release]
+version_toml = []
+version_variables = ["src/ltasg/__init__.py:__version__"]
+tag_format = "v{version}"
+
+[tool.semantic_release.branches.main]
+match = "main"
