@@ -1,6 +1,6 @@
 """ltasg — LTA DataMall API Wrapper Library for Python."""
 
-__version__ = "0.0.7"
+__version__ = "1.0.0"
 
 from .transport.bus import Bus
 from .transport.train import Train

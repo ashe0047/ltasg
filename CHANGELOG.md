@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.0 (2026-07-18)
+
+### Bug Fixes
+
+- Exclude test directory from sdist build
+  ([`45a66f9`](https://github.com/ashe0047/ltasg/commit/45a66f918eaadd682fc3924133ec695e731b30da))
+
+
 ## v0.0.7 (2026-07-18)
 
 ### Features
