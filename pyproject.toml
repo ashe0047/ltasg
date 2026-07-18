@@ -35,6 +35,9 @@ path = "src/ltasg/__init__.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/ltasg"]
 
+[tool.hatch.build.targets.sdist]
+exclude = ["/test", "/test/**"]
+
 [tool.pytest.ini_options]
 testpaths = ["test"]
 asyncio_mode = "auto"
