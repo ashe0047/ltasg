@@ -785,3 +785,4 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 ### Initial verification
 
 - Baseline test suite passed: `python -m pytest test/ -v --timeout=30` (82 tests).
+- The first PR CI run exposed two vulnerable legacy pins in `requirements.txt` (`aiohttp==3.9.5` and `setuptools==69.5.1`); both were updated to fixed versions and the package lower bound was raised to `aiohttp >= 3.13.4`.
