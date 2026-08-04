@@ -758,3 +758,9 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 ### Rollout
 
 - User approved committing and pushing the TestPyPI workflow fix; the change is now staged for the remote rollout.
+
+### Completion
+
+- Commit `c173bfd` was pushed to `main`.
+- Dependabot PR #2 merged as `009ec36`; PR #4 merged as `b6f85d7`.
+- The post-merge TestPyPI publishing runs succeeded for both merge commits, confirming duplicate-file handling is fixed.
