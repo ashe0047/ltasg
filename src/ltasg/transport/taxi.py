@@ -1,7 +1,7 @@
 """Taxi API methods."""
 
-from ..transport.base import Transport
-from ..constants import TransportType
+from ltasg.constants import TransportType
+from ltasg.transport.base import Transport
 
 
 class Taxi(Transport):

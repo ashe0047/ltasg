@@ -1,114 +1,111 @@
-name: Publish ltasg to PyPI
-run-name: ${{ github.actor }} is publishing ltasg to PyPI
+name: Publish ltasg
+run-name: Publish ltasg from ${{ github.ref_name }}
 
-on: [push]
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build distribution
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v7
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.13"
-      - name: Install build tools
-        run: |
-          python -m pip install build
-          python -m pip install -e . pytest
-      - name: Build a binary wheel and a source tarball
+          cache: pip
+      - name: Install build dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Build distributions
         run: python -m build
-      - name: Verify wheel and sdist integrity
+      - name: Validate distribution metadata
+        run: twine check dist/*
+      - name: Verify package integrity
         run: python -m pytest test/test_sdk_packaging.py -v
-      - name: Store the distribution packages
-        uses: actions/upload-artifact@v7
+      - name: Store distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: python-package-distributions
           path: dist/
 
   publish-to-testpypi:
     name: Publish to TestPyPI
-    if: github.ref_name == 'main' && !startsWith(github.ref, 'refs/tags/')
+    if: github.ref == 'refs/heads/main'
     needs: [build]
     runs-on: ubuntu-latest
-
     environment:
       name: testpypi
       url: https://test.pypi.org/p/ltasg
-
     permissions:
       id-token: write
-
     steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v8
+      - name: Download distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: python-package-distributions
           path: dist/
-      - name: Publish distribution to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
 
   publish-to-pypi:
     name: Publish to PyPI
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: [build]
     runs-on: ubuntu-latest
-
     environment:
       name: pypi
       url: https://pypi.org/p/ltasg
-
     permissions:
       id-token: write
-
     steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v8
+      - name: Download distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: python-package-distributions
           path: dist/
-      - name: Publish distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
 
   github-release:
-    name: Sign and upload to GitHub Release
-    if: startsWith(github.ref, 'refs/tags/')
+    name: Sign and create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: [publish-to-pypi]
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
       id-token: write
-
     steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v8
+      - name: Download distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: python-package-distributions
           path: dist/
-      - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v3.5.0
+      - name: Sign distributions with Sigstore
+        uses: sigstore/gh-action-sigstore-python@790bc6befb9d733738f18d8f895854b453640ec9 # v3.5.0
         with:
           inputs: >-
             ./dist/*.tar.gz
             ./dist/*.whl
-      - name: Create GitHub Release
+      - name: Create GitHub Release with generated notes
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: >-
           gh release create
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
-          --notes ""
-      - name: Upload artifact signatures to GitHub Release
+          --generate-notes
+      - name: Upload artifact signatures
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: >-
           gh release upload
-          '${{ github.ref_name }}' dist/**
+          '${{ github.ref_name }}' dist/*.sigstore.json
           --repo '${{ github.repository }}'

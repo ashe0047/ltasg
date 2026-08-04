@@ -1,7 +1,9 @@
 """Base class for transport-domain API wrappers."""
 
-from ..api import LTADataMall
-from ..constants import LTA_SERVICES, DEFAULT_BASE_URL
+from typing import ClassVar
+
+from ltasg.api import LTADataMall
+from ltasg.constants import DEFAULT_BASE_URL, LTA_SERVICES, TransportType
 
 
 class Transport:
@@ -17,11 +19,11 @@ class Transport:
             data = await bus.arrival(71111, "63")
     """
 
-    _service_type = None
+    _service_type: ClassVar[TransportType | None] = None
 
     def __init__(self, base_url=DEFAULT_BASE_URL, api_key=None):
         self.lta_api = LTADataMall(base_url=base_url, api_key=api_key)
-        services = LTA_SERVICES['PUBLIC_TRANSPORT_SERVICES']
+        services = LTA_SERVICES["PUBLIC_TRANSPORT_SERVICES"]
         self._svc = services[self._service_type] if self._service_type else {}
 
     async def __aenter__(self):

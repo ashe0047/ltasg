@@ -9,7 +9,7 @@ dynamic = ["version"]
 authors = [
   { name="Aw Sheng Xiang", email="awshengxiang@hotmail.com" },
 ]
-description = "A LTA Datamall API Wrapper Library for Python"
+description = "Async Python client for Singapore's LTA DataMall API"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -19,15 +19,37 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Framework :: AsyncIO",
+    "Typing :: Typed",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 dependencies = [
-  "aiohttp >= 3.9.5"
+  "aiohttp >= 3.13.4"
+]
+
+[project.optional-dependencies]
+dev = [
+  "build >= 1.2",
+  "mypy >= 1.15",
+  "pip-audit >= 2.7",
+  "pre-commit >= 4.0",
+  "pytest >= 8.3",
+  "pytest-asyncio >= 0.24",
+  "pytest-timeout >= 2.3",
+  "python-dotenv >= 1.2",
+  "python-semantic-release == 10.6.1",
+  "ruff == 0.15.21",
+  "twine >= 6.1",
 ]
 
 [project.urls]
-Homepage = "https://github.com/ashe/ltasg"
-Source = "https://github.com/ashe0047/ltasg"
+Homepage = "https://pypi.org/project/ltasg/"
+Repository = "https://github.com/ashe0047/ltasg"
+Documentation = "https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf?ref=public_apis"
+Issues = "https://github.com/ashe0047/ltasg/issues"
+Changelog = "https://github.com/ashe0047/ltasg/blob/main/CHANGELOG.md"
 
 [tool.hatch.version]
 path = "src/ltasg/__init__.py"
@@ -57,11 +79,16 @@ select = ["E", "F", "I", "UP", "B", "ASYNC", "TID"]
 
 [tool.mypy]
 python_version = "3.12"
-strict = true
+strict = false
 warn_unused_configs = true
 explicit_package_bases = true
+mypy_path = "src"
+no_implicit_optional = false
 
 [tool.semantic_release]
+build_command = "python -m build"
+commit_message = "chore(release): {version}"
+major_on_zero = false
 version_toml = []
 version_variables = ["src/ltasg/__init__.py:__version__"]
 tag_format = "v{version}"

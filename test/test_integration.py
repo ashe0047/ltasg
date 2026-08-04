@@ -1,15 +1,15 @@
 """Integration tests for ltasg SDK — mock aiohttp at module level."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
 from ltasg.api import LTADataMall, LTADataMallHTTPError
 from ltasg.constants import DEFAULT_BASE_URL
-
 
 MODULE = "ltasg.api"
 
@@ -52,9 +52,7 @@ class TestFetchResponseShapes(unittest.IsolatedAsyncioTestCase):
 
     async def test_standard_value_array_becomes_flat_list(self):
         """Standard API with value array → flat list."""
-        session = _make_mock_session(
-            json_data={"value": [{"a": 1}, {"a": 2}]}
-        )
+        session = _make_mock_session(json_data={"value": [{"a": 1}, {"a": 2}]})
         with patch(f"{MODULE}.ClientSession", return_value=session):
             result = await self.api.fetch("BusServices")
         self.assertEqual(result, [{"a": 1}, {"a": 2}])
@@ -139,10 +137,12 @@ class TestFetchPagination(unittest.IsolatedAsyncioTestCase):
         """500 records + 100 records → flat list of 600."""
         page1 = [{"i": i} for i in range(500)]
         page2 = [{"i": i} for i in range(100)]
-        session = _make_mock_session(json_side_effect=[
-            {"value": page1},
-            {"value": page2},
-        ])
+        session = _make_mock_session(
+            json_side_effect=[
+                {"value": page1},
+                {"value": page2},
+            ]
+        )
         with patch(f"{MODULE}.ClientSession", return_value=session):
             result = await self.api.fetch("BusRoutes")
         self.assertEqual(len(result), 600)
@@ -160,10 +160,12 @@ class TestFetchPagination(unittest.IsolatedAsyncioTestCase):
     async def test_exactly_500_triggers_next_page(self):
         """500 records + empty → flat list of 500."""
         page1 = [{"i": i} for i in range(500)]
-        session = _make_mock_session(json_side_effect=[
-            {"value": page1},
-            {"value": []},
-        ])
+        session = _make_mock_session(
+            json_side_effect=[
+                {"value": page1},
+                {"value": []},
+            ]
+        )
         with patch(f"{MODULE}.ClientSession", return_value=session):
             result = await self.api.fetch("BusRoutes")
         self.assertEqual(len(result), 500)
@@ -172,10 +174,12 @@ class TestFetchPagination(unittest.IsolatedAsyncioTestCase):
         """Pagination preserves query params properly."""
         page1 = [{"i": i} for i in range(500)]
         page2 = [{"i": i} for i in range(50)]
-        session = _make_mock_session(json_side_effect=[
-            {"value": page1},
-            {"value": page2},
-        ])
+        session = _make_mock_session(
+            json_side_effect=[
+                {"value": page1},
+                {"value": page2},
+            ]
+        )
         with patch(f"{MODULE}.ClientSession", return_value=session):
             result = await self.api.fetch("BusRoutes", query_params={"ServiceNo": "63"})
         self.assertEqual(len(result), 550)

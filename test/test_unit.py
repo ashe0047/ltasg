@@ -1,19 +1,18 @@
 """Unit tests for ltasg SDK — all API calls are mocked."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from unittest.mock import AsyncMock, patch
-from ltasg.constants import (
-    DEFAULT_BASE_URL, TransportType, LTA_SERVICES
-)
+
 from ltasg.api import LTADataMall
+from ltasg.constants import DEFAULT_BASE_URL, LTA_SERVICES, TransportType
 from ltasg.transport.bus import Bus
-from ltasg.transport.train import Train
 from ltasg.transport.taxi import Taxi
+from ltasg.transport.train import Train
 
 
 class TestConstants(unittest.TestCase):
@@ -52,7 +51,7 @@ class TestLTADataMall(unittest.TestCase):
 
 class TestBus(unittest.IsolatedAsyncioTestCase):
     """Verify Bus methods call fetch() with correct endpoints and params.
-    
+
     fetch() is mocked to return the flat list it would normally return.
     """
 
@@ -96,9 +95,7 @@ class TestBus(unittest.IsolatedAsyncioTestCase):
     async def test_services_with_filter_passes_param(self):
         mock = await self._mock_fetch([{"ServiceNo": "63"}])
         result = await self.bus.services(service_no="63")
-        mock.assert_called_once_with(
-            "BusServices", query_params={"ServiceNo": "63"}
-        )
+        mock.assert_called_once_with("BusServices", query_params={"ServiceNo": "63"})
         self.assertEqual(len(result), 1)
 
     async def test_services_handles_empty_response(self):
@@ -118,9 +115,7 @@ class TestBus(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, [])
 
     async def test_routes_multiple_pages_are_flattened(self):
-        await self._mock_fetch(
-            [{"ServiceNo": "63"}, {"ServiceNo": "63M"}]
-        )
+        await self._mock_fetch([{"ServiceNo": "63"}, {"ServiceNo": "63M"}])
         result = await self.bus.routes()
         self.assertEqual(len(result), 2)
 
@@ -133,24 +128,26 @@ class TestBus(unittest.IsolatedAsyncioTestCase):
     async def test_stops_with_filter_passes_param(self):
         mock = await self._mock_fetch([{"BusStopCode": "01012"}])
         result = await self.bus.stops(bus_stop_code="01012")
-        mock.assert_called_once_with(
-            "BusStops", query_params={"BusStopCode": "01012"}
-        )
+        mock.assert_called_once_with("BusStops", query_params={"BusStopCode": "01012"})
         self.assertEqual(len(result), 1)
 
     async def test_stop_services_filters_by_stop_code(self):
-        await self._mock_fetch([
-            {"ServiceNo": "63", "BusStopCode": "83139"},
-            {"ServiceNo": "65", "BusStopCode": "83139"},
-            {"ServiceNo": "63", "BusStopCode": "99999"},
-        ])
+        await self._mock_fetch(
+            [
+                {"ServiceNo": "63", "BusStopCode": "83139"},
+                {"ServiceNo": "65", "BusStopCode": "83139"},
+                {"ServiceNo": "63", "BusStopCode": "99999"},
+            ]
+        )
         result = await self.bus.stop_services("83139")
         self.assertEqual(sorted(result), sorted(["63", "65"]))
 
     async def test_stop_services_returns_empty_when_no_match(self):
-        await self._mock_fetch([
-            {"ServiceNo": "63", "BusStopCode": "83139"},
-        ])
+        await self._mock_fetch(
+            [
+                {"ServiceNo": "63", "BusStopCode": "83139"},
+            ]
+        )
         result = await self.bus.stop_services("00000")
         self.assertEqual(result, [])
 
@@ -193,13 +190,15 @@ class TestTrain(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Message", result)
 
     async def test_service_alerts_status_value(self):
-        mock = await self._mock_fetch_value({
-            "Status": 2,
-            "AffectedSegments": [
-                {"Line": "NEL", "Direction": "Both", "Stations": "NE1,NE3"}
-            ],
-            "Message": [],
-        })
+        mock = await self._mock_fetch_value(
+            {
+                "Status": 2,
+                "AffectedSegments": [
+                    {"Line": "NEL", "Direction": "Both", "Stations": "NE1,NE3"}
+                ],
+                "Message": [],
+            }
+        )
         result = await self.train.service_alerts()
         mock.assert_called_once_with("TrainServiceAlerts")
         self.assertEqual(result["Status"], 2)
@@ -215,15 +214,17 @@ class TestTrain(unittest.IsolatedAsyncioTestCase):
     # --- facilities_maintenance (uses fetch) ---
 
     async def test_facilities_maintenance_calls_correct_endpoint(self):
-        mock = await self._mock_fetch([
-            {
-                "Line": "NEL",
-                "StationCode": "NE12",
-                "StationName": "Serangoon",
-                "LiftID": "B1L01",
-                "LiftDesc": "Exit B Street level - Concourse",
-            }
-        ])
+        mock = await self._mock_fetch(
+            [
+                {
+                    "Line": "NEL",
+                    "StationCode": "NE12",
+                    "StationName": "Serangoon",
+                    "LiftID": "B1L01",
+                    "LiftDesc": "Exit B Street level - Concourse",
+                }
+            ]
+        )
         result = await self.train.facilities_maintenance()
         mock.assert_called_once_with("v2/FacilitiesMaintenance")
         self.assertEqual(len(result), 1)
@@ -239,16 +240,16 @@ class TestTrain(unittest.IsolatedAsyncioTestCase):
     async def test_realtime_calls_correct_endpoint_with_param(self):
         mock = await self._mock_fetch([{"Station": "EW1", "CrowdLevel": "l"}])
         result = await self.train.station_crowd_density_realtime("EWL")
-        mock.assert_called_once_with(
-            "PCDRealTime", query_params={"TrainLine": "EWL"}
-        )
+        mock.assert_called_once_with("PCDRealTime", query_params={"TrainLine": "EWL"})
         self.assertEqual(len(result), 1)
 
     async def test_realtime_returns_multiple_stations(self):
-        await self._mock_fetch([
-            {"Station": "EW1", "CrowdLevel": "l"},
-            {"Station": "EW2", "CrowdLevel": "m"},
-        ])
+        await self._mock_fetch(
+            [
+                {"Station": "EW1", "CrowdLevel": "l"},
+                {"Station": "EW2", "CrowdLevel": "m"},
+            ]
+        )
         result = await self.train.station_crowd_density_realtime("EWL")
         self.assertEqual(len(result), 2)
 
@@ -262,18 +263,18 @@ class TestTrain(unittest.IsolatedAsyncioTestCase):
     async def test_forecast_calls_correct_endpoint_with_param(self):
         mock = await self._mock_fetch([{"Station": "NS1", "CrowdLevel": "l"}])
         result = await self.train.station_crowd_density_forecast("NSL")
-        mock.assert_called_once_with(
-            "PCDForecast", query_params={"TrainLine": "NSL"}
-        )
+        mock.assert_called_once_with("PCDForecast", query_params={"TrainLine": "NSL"})
         self.assertEqual(len(result), 1)
 
     async def test_forecast_handles_all_crowd_levels(self):
-        await self._mock_fetch([
-            {"Station": "CC1", "CrowdLevel": "l"},
-            {"Station": "CC2", "CrowdLevel": "m"},
-            {"Station": "CC3", "CrowdLevel": "h"},
-            {"Station": "CC4", "CrowdLevel": "NA"},
-        ])
+        await self._mock_fetch(
+            [
+                {"Station": "CC1", "CrowdLevel": "l"},
+                {"Station": "CC2", "CrowdLevel": "m"},
+                {"Station": "CC3", "CrowdLevel": "h"},
+                {"Station": "CC4", "CrowdLevel": "NA"},
+            ]
+        )
         result = await self.train.station_crowd_density_forecast("CCL")
         self.assertEqual(len(result), 4)
         levels = {r["CrowdLevel"] for r in result}
@@ -292,9 +293,7 @@ class TestTaxi(unittest.IsolatedAsyncioTestCase):
         return mock
 
     async def test_availability_calls_correct_endpoint(self):
-        mock = await self._mock_fetch([
-            {"Latitude": 1.35667, "Longitude": 103.93314}
-        ])
+        mock = await self._mock_fetch([{"Latitude": 1.35667, "Longitude": 103.93314}])
         result = await self.taxi.availability()
         mock.assert_called_once_with("Taxi-Availability")
         self.assertEqual(len(result), 1)
@@ -307,9 +306,7 @@ class TestTaxi(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, [])
 
     async def test_stands_calls_correct_endpoint(self):
-        mock = await self._mock_fetch([
-            {"TaxiCode": "A01", "Latitude": 1.30398}
-        ])
+        mock = await self._mock_fetch([{"TaxiCode": "A01", "Latitude": 1.30398}])
         result = await self.taxi.stands()
         mock.assert_called_once_with("TaxiStands")
         self.assertEqual(len(result), 1)
@@ -329,10 +326,12 @@ class TestTraffic(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         from ltasg.traffic import Traffic
+
         self.traffic = Traffic(api_key="test-key")
 
     async def _mock_fetch(self, return_value):
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import AsyncMock, patch
+
         patcher = patch.object(self.traffic.lta_api, "fetch", new_callable=AsyncMock)
         mock = patcher.start()
         mock.return_value = return_value
@@ -350,49 +349,71 @@ class TestTraffic(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(result), 1)
 
     async def test_carpark_availability(self):
-        await self._test_endpoint("carpark_availability", "CARPARK_AVAILABILITY",
-                                  {"CarParkID": "1", "AvailableLots": 352})
+        await self._test_endpoint(
+            "carpark_availability",
+            "CARPARK_AVAILABILITY",
+            {"CarParkID": "1", "AvailableLots": 352},
+        )
 
     async def test_estimated_travel_times(self):
-        await self._test_endpoint("estimated_travel_times", "ESTIMATED_TRAVEL_TIMES",
-                                  {"Name": "AYE", "EstTime": 2})
+        await self._test_endpoint(
+            "estimated_travel_times",
+            "ESTIMATED_TRAVEL_TIMES",
+            {"Name": "AYE", "EstTime": 2},
+        )
 
     async def test_faulty_traffic_lights(self):
-        await self._test_endpoint("faulty_traffic_lights", "FAULTY_TRAFFIC_LIGHTS",
-                                  {"AlarmID": "GL703034136"})
+        await self._test_endpoint(
+            "faulty_traffic_lights", "FAULTY_TRAFFIC_LIGHTS", {"AlarmID": "GL703034136"}
+        )
 
     async def test_planned_road_openings(self):
-        await self._test_endpoint("planned_road_openings", "PLANNED_ROAD_OPENINGS",
-                                  {"EventID": "RMAPP-201603-0900"})
+        await self._test_endpoint(
+            "planned_road_openings",
+            "PLANNED_ROAD_OPENINGS",
+            {"EventID": "RMAPP-201603-0900"},
+        )
 
     async def test_approved_road_works(self):
-        await self._test_endpoint("approved_road_works", "APPROVED_ROAD_WORKS",
-                                  {"EventID": "RMAPP-201512-0217"})
+        await self._test_endpoint(
+            "approved_road_works",
+            "APPROVED_ROAD_WORKS",
+            {"EventID": "RMAPP-201512-0217"},
+        )
 
     async def test_traffic_images(self):
-        await self._test_endpoint("traffic_images", "TRAFFIC_IMAGES",
-                                  {"CameraID": "5795", "ImageLink": "https://..."})
+        await self._test_endpoint(
+            "traffic_images",
+            "TRAFFIC_IMAGES",
+            {"CameraID": "5795", "ImageLink": "https://..."},
+        )
 
     async def test_traffic_incidents(self):
-        await self._test_endpoint("traffic_incidents", "TRAFFIC_INCIDENTS",
-                                  {"Type": "Vehicle breakdown", "Message": "..."})
+        await self._test_endpoint(
+            "traffic_incidents",
+            "TRAFFIC_INCIDENTS",
+            {"Type": "Vehicle breakdown", "Message": "..."},
+        )
 
     async def test_traffic_speed_bands(self):
-        await self._test_endpoint("traffic_speed_bands", "TRAFFIC_SPEED_BANDS",
-                                  {"LinkID": 1, "SpeedBand": 2})
+        await self._test_endpoint(
+            "traffic_speed_bands", "TRAFFIC_SPEED_BANDS", {"LinkID": 1, "SpeedBand": 2}
+        )
 
     async def test_vms(self):
-        await self._test_endpoint("vms", "VMS",
-                                  {"EquipmentID": "amvms_v9104"})
+        await self._test_endpoint("vms", "VMS", {"EquipmentID": "amvms_v9104"})
 
     async def test_traffic_flow(self):
-        await self._test_endpoint("traffic_flow", "TRAFFIC_FLOW",
-                                  {"Link": "https://..."})
+        await self._test_endpoint(
+            "traffic_flow", "TRAFFIC_FLOW", {"Link": "https://..."}
+        )
 
     async def test_flood_alerts(self):
-        await self._test_endpoint("flood_alerts", "FLOOD_ALERTS",
-                                  {"alertId": "2.49.0.0", "event": "Flood",
-                                   "severity": "Minor"})
+        await self._test_endpoint(
+            "flood_alerts",
+            "FLOOD_ALERTS",
+            {"alertId": "2.49.0.0", "event": "Flood", "severity": "Minor"},
+        )
 
     async def test_empty_response(self):
         await self._mock_fetch([])
@@ -405,10 +426,12 @@ class TestBusAdditional(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         from ltasg.transport.bus import Bus
+
         self.bus = Bus(api_key="test-key")
 
     async def _mock_fetch(self, return_value):
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import AsyncMock, patch
+
         patcher = patch.object(self.bus.lta_api, "fetch", new_callable=AsyncMock)
         mock = patcher.start()
         mock.return_value = return_value
@@ -446,10 +469,12 @@ class TestTrainAdditional(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         from ltasg.transport.train import Train
+
         self.train = Train(api_key="test-key")
 
     async def _mock_fetch(self, return_value):
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import AsyncMock, patch
+
         patcher = patch.object(self.train.lta_api, "fetch", new_callable=AsyncMock)
         mock = patcher.start()
         mock.return_value = return_value
@@ -464,7 +489,7 @@ class TestTrainAdditional(unittest.IsolatedAsyncioTestCase):
 
     async def test_passenger_volume_by_od_train_stations_with_date(self):
         mock = await self._mock_fetch([{"Link": "https://..."}])
-        result = await self.train.passenger_volume_by_od_train_stations(date="202605")
+        await self.train.passenger_volume_by_od_train_stations(date="202605")
         mock.assert_called_once_with("PV/ODTrain", query_params={"Date": "202605"})
 
     async def test_passenger_volume_by_train_stations(self):
@@ -479,10 +504,12 @@ class TestOther(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         from ltasg.other import Other
+
         self.other = Other(api_key="test-key")
 
     async def _mock_fetch(self, return_value):
-        from unittest.mock import patch, AsyncMock
+        from unittest.mock import AsyncMock, patch
+
         patcher = patch.object(self.other.lta_api, "fetch", new_callable=AsyncMock)
         mock = patcher.start()
         mock.return_value = return_value

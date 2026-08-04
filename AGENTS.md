@@ -10,7 +10,7 @@ Async Python SDK wrapper for the LTA DataMall API (v6.8). Published as
 ```bash
 git clone https://github.com/ashe0047/ltasg.git
 cd ltasg
-pip install -e .
+python -m pip install -e '.[dev]'
 python -m pytest test/ -v --timeout=30
 ```
 

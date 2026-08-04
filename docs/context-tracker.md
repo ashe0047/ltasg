@@ -764,3 +764,25 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 - Commit `c173bfd` was pushed to `main`.
 - Dependabot PR #2 merged as `009ec36`; PR #4 merged as `b6f85d7`.
 - The post-merge TestPyPI publishing runs succeeded for both merge commits, confirming duplicate-file handling is fixed.
+
+## — Public repository professionalization and hardening (2026-08-05) —
+
+### Locked scope
+
+- Full public-repository hardening is being implemented on the dedicated branch `chore/public-repository-hardening`.
+- Release governance is strict: semantic release creates the version commit/tag, while the tag-triggered release workflow alone publishes to PyPI and creates the GitHub Release.
+- TestPyPI remains duplicate-tolerant; production PyPI remains duplicate-strict.
+- GitHub Discussions remain disabled, the unused Wiki will be disabled, and private vulnerability reporting will be enabled.
+- `main` will require pull requests, one approval, current required CI checks, resolved conversations, linear history, and no force pushes/deletions; administrator bypass remains available for solo-maintainer work.
+
+### Implementation decisions
+
+- README documentation now uses the official LTA DataMall API guide, an awaited async context-manager example, Python 3.12+ support, API-key/session guidance, troubleshooting, contribution links, and a clarified 30-upstream-API count. `Stop Services` is documented as a client-side helper.
+- Project metadata now points to the canonical repository, PyPI project, official documentation, issues, and changelog, and exposes a pinned development extra including packaging, test, lint, type, pre-commit, audit, and semantic-release tooling.
+- Community health files, CODEOWNERS, issue forms, pull-request template, dedicated CI, and CodeQL workflows were added. Third-party Actions are pinned to full commit SHAs.
+- Publishing workflows are now separated from validation, use least-privilege permissions, publish TestPyPI only from `main`, publish PyPI only from `v*` tags, and generate GitHub release notes.
+
+### Initial verification
+
+- Baseline test suite passed: `python -m pytest test/ -v --timeout=30` (82 tests).
+- The first PR CI run exposed two vulnerable legacy pins in `requirements.txt` (`aiohttp==3.9.5` and `setuptools==69.5.1`); both were updated to fixed versions and the package lower bound was raised to `aiohttp >= 3.13.4`.
