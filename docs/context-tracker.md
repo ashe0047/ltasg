@@ -797,3 +797,4 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 - The active `Protect release tags` ruleset covers `refs/tags/v*`, blocks creation except for the maintainer bypass, and blocks deletion and non-fast-forward updates.
 - The `testpypi` environment accepts only `main` deployments. The `pypi` environment requires maintainer review and accepts only `v*` tag deployments.
 - The first post-merge CodeQL run passed but warned that CodeQL Action v3 will be deprecated in December 2026; the immutable CodeQL pins were upgraded to the v4 commit SHA `5595ccaf912efad79be6eef63a5619ff05969be3`.
+- Production PyPI environment administrator bypass is disabled; a maintainer review remains mandatory for `v*` deployments while `testpypi` remains automatic from `main`.
