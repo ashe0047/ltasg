@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest an improvement or additional DataMall API coverage
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What would this feature help you do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the API or interface you would like to see.
+    validations:
+      required: true
+  - type: input
+    id: documentation
+    attributes:
+      label: Official DataMall documentation
+      description: Link to the relevant endpoint documentation, if applicable.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

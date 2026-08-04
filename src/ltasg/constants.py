@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 DEFAULT_BASE_URL = "https://datamall2.mytransport.sg/ltaodataservice/"
 
 
@@ -8,6 +7,7 @@ class TransportType(Enum):
     BUS = "bus"
     TRAIN = "mrt"
     TAXI = "taxi"
+
 
 LTA_SERVICES = {
     "PUBLIC_TRANSPORT_SERVICES": {
@@ -23,7 +23,7 @@ LTA_SERVICES = {
         TransportType.TRAIN: {
             "PLATFORM_CROWD_DENSITY": {
                 "REALTIME": "PCDRealTime",
-                "FORECAST": "PCDForecast"
+                "FORECAST": "PCDForecast",
             },
             "SERVICE_ALERTS": "TrainServiceAlerts",
             "FACILITIES_MAINTENANCE": "v2/FacilitiesMaintenance",
@@ -33,8 +33,9 @@ LTA_SERVICES = {
         TransportType.TAXI: {
             "AVAILABILITY": "Taxi-Availability",
             "STANDS": "TaxiStands",
-        }
-}}
+        },
+    }
+}
 
 TRAFFIC_SERVICES = {
     "CARPARK_AVAILABILITY": "CarParkAvailabilityv2",

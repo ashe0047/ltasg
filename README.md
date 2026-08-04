@@ -1,97 +1,77 @@
 # ltasg
 
-[![Build Status](https://github.com/ashe0047/ltasg/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/ashe0047/ltasg/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![PyPI version](https://img.shields.io/pypi/v/ltasg?logo=pypi)](https://badge.fury.io/py/your-package)
+[![CI](https://github.com/ashe0047/ltasg/actions/workflows/ci.yml/badge.svg)](https://github.com/ashe0047/ltasg/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/ltasg?logo=pypi)](https://pypi.org/project/ltasg/)
 [![Python versions](https://img.shields.io/pypi/pyversions/ltasg.svg?logo=python)](https://pypi.org/project/ltasg/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A LTA Datamall API Wrapper Library for Python
+Async Python client for Singapore’s [LTA DataMall API](https://datamall.lta.gov.sg/), covering bus, train, taxi, traffic, and passenger-volume data.
 
-## Table of Contents
+## Requirements
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Documentation](#documentation)
-- [License](#license)
+- Python 3.12 or newer
+- An LTA DataMall API key
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install `ltasg`:
-
 ```sh
-pip install ltasg
+python -m pip install ltasg
 ```
+
+## API key setup
+
+Request an API key from the [LTA DataMall portal](https://datamall.lta.gov.sg/). Keep the key private and provide it when creating a client. The library does not read or persist credentials automatically.
 
 ## Usage
 
-- **Bus Arrival**: Querying bus arrival timings
+Clients are asynchronous context managers. The context closes the underlying `aiohttp` session when the client is no longer needed.
 
 ```python
+import asyncio
+import os
+
 from ltasg.transport.bus import Bus
 
-# Default base URL uses HTTPS; optionally pass a custom base_url.
-api_key = "<YOUR_LTA_DATAMALL_API_KEY>"
 
-bus = Bus(api_key=api_key)
-result = bus.arrival(71111, '63')
-print(result)
+async def main() -> None:
+    api_key = os.environ["LTA_API_KEY"]
+
+    async with Bus(api_key=api_key) as bus:
+        arrivals = await bus.arrival(71111, "63")
+        print(arrivals)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
-## Features
+## Supported API groups
 
-### Bus (8 APIs)
+The client exposes the 30 upstream DataMall APIs implemented by this project. `Stop Services` is an additional convenience helper: it fetches Bus Routes once and filters service numbers locally, so it is not counted as a separate upstream endpoint.
 
-1. Bus Arrival (v3)
-2. Bus Services (with optional ServiceNo filter)
-3. Bus Routes
-4. Bus Stops (with optional BusStopCode filter)
-5. Passenger Volume by Bus Stops (download Link)
-6. Passenger Volume by Origin-Destination Bus Stops (download Link)
-7. Planned Bus Routes
-8. Stop Services (client-side route filter)
+- **Bus:** arrival, services, routes, stops, passenger volume by bus stops, passenger volume by origin-destination bus stops, and planned bus routes
+- **Train:** service alerts, facilities maintenance, real-time and forecast station crowd density, and passenger volume by train stations and origin-destination train stations
+- **Taxi:** availability and taxi stands
+- **Traffic:** carpark availability, estimated travel times, faulty traffic lights, planned road openings, approved road works, traffic images, traffic incidents, traffic speed bands, VMS/EMAS, traffic flow, and flood alerts
+- **Other:** bicycle parking, geospatial whole island, EV charging points, and batched EV charging points
 
-### Train (6 APIs)
-
-1. Train Service Alerts
-2. Facilities Maintenance (v2)
-3. Station Crowd Density Real-time
-4. Station Crowd Density Forecast
-5. Passenger Volume by Origin-Destination Train Stations (download Link)
-6. Passenger Volume by Train Stations (download Link)
-
-### Taxi (2 APIs)
-
-1. Taxi Availability
-2. Taxi Stands
-
-### Traffic (11 APIs)
-
-1. Carpark Availability (v2)
-2. Estimated Travel Times
-3. Faulty Traffic Lights
-4. Planned Road Openings
-5. Approved Road Works
-6. Traffic Images (v2)
-7. Traffic Incidents
-8. Traffic Speed Bands (v4)
-9. VMS / EMAS
-10. Traffic Flow (download Link)
-11. Flood Alerts
-
-### Other (4 APIs)
-
-1. Bicycle Parking (v2)
-2. Geospatial Whole Island
-3. EV Charging Points
-4. EV Charging Points Batch
+Some passenger-volume and traffic-flow APIs return a DataMall download link rather than the dataset itself. Refer to the method docstrings and the official guide for response details.
 
 ## Documentation
 
-Full API reference: [LTA DataMall API User Guide v6.8](https://datamall2.mytransport.sg)
+The authoritative endpoint parameters and response schemas are in the [LTA DataMall API User Guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf?ref=public_apis).
 
-For parameter details and response schemas, refer to the PDF guide.
+## Troubleshooting
+
+- **401 or 403 responses:** verify that `LTA_API_KEY` is present, valid, and passed as `api_key`.
+- **Empty results:** DataMall datasets can legitimately be empty; check the endpoint and query parameters against the official guide.
+- **Connection or timeout errors:** check network access and retry the request. Use one client context for a group of requests so the HTTP session is reused.
+- **Unexpected response shapes:** confirm the DataMall API version and inspect the raw endpoint documentation; upstream datasets can change independently of this package.
+
+## Contributing
+
+Bug reports, improvements, and new API coverage are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), [SUPPORT.md](SUPPORT.md), and the [issue tracker](https://github.com/ashe0047/ltasg/issues).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

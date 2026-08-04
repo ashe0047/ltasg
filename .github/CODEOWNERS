@@ -1,0 +1,5 @@
+# Maintainer review for all repository changes.
+* @ashe0047
+
+# Workflows and dependency automation require explicit maintainer review.
+/.github/ @ashe0047

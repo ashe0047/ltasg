@@ -20,6 +20,7 @@ BUILD_DIR = PROJECT_ROOT / "dist"
 
 def _reset_build_dir() -> None:
     import shutil
+
     if BUILD_DIR.exists():
         shutil.rmtree(BUILD_DIR)
 
@@ -30,7 +31,9 @@ def build_output() -> tuple[dict[str, str], list[str]]:
     _reset_build_dir()
     subprocess.run(
         [sys.executable, "-m", "build", "--outdir", str(BUILD_DIR), str(PROJECT_ROOT)],
-        check=True, capture_output=True, text=True,
+        check=True,
+        capture_output=True,
+        text=True,
     )
     artifacts = sorted(BUILD_DIR.glob("ltasg-*"))
     info: dict[str, str] = {}
@@ -116,9 +119,7 @@ def test_metadata_license(build_output) -> None:
 def test_metadata_requires_python(build_output) -> None:
     info, _ = build_output
     msg = email.message_from_string(info["metadata"], policy=email.policy.compat32)
-    assert ">=" in (msg["Requires-Python"] or ""), (
-        f"got {msg['Requires-Python']!r}"
-    )
+    assert ">=" in (msg["Requires-Python"] or ""), f"got {msg['Requires-Python']!r}"
 
 
 def test_metadata_requires_dist(build_output) -> None:
@@ -148,20 +149,30 @@ def test_wheel_installs_and_imports(build_output) -> None:
         target_dir.mkdir(parents=True)
 
         subprocess.run(
-            [sys.executable, "-m", "pip", "install",
-             str(wheel_path), "--no-deps", "--quiet",
-             "--target", str(target_dir)],
-            check=True, capture_output=True, text=True,
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                str(wheel_path),
+                "--no-deps",
+                "--quiet",
+                "--target",
+                str(target_dir),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
         )
 
         target_repr = repr(str(target_dir))
         script = (
-            f"import sys; sys.path.insert(0, {target_repr});\n"
-            f"{_import_check_script()}"
+            f"import sys; sys.path.insert(0, {target_repr});\n{_import_check_script()}"
         )
         result = subprocess.run(
             [sys.executable, "-c", script],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert result.returncode == 0, (
             f"import check failed:\nSTDOUT: {result.stdout}\nSTDERR: {result.stderr}"

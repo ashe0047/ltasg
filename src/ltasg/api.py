@@ -2,11 +2,12 @@
 
 from urllib.parse import urlencode
 
-from aiohttp import ClientSession, ClientConnectionError, ClientTimeout
+from aiohttp import ClientConnectionError, ClientSession, ClientTimeout
 
 
 class LTADataMallError(Exception):
     """Base exception for LTA DataMall API errors."""
+
     pass
 
 
@@ -16,9 +17,7 @@ class LTADataMallHTTPError(LTADataMallError):
     def __init__(self, endpoint: str, status: int) -> None:
         self.endpoint = endpoint
         self.status = status
-        super().__init__(
-            f"Error calling API for {endpoint} with status code: {status}"
-        )
+        super().__init__(f"Error calling API for {endpoint} with status code: {status}")
 
 
 class LTADataMall:
@@ -84,8 +83,9 @@ class LTADataMall:
     # Public API
     # ------------------------------------------------------------------
 
-    async def fetch(self, endpoint: str, query_params: dict = None,
-                    records_key: str = "value"):
+    async def fetch(
+        self, endpoint: str, query_params: dict = None, records_key: str = "value"
+    ):
         """Fetch an endpoint and return a flat list of record dicts.
 
         Args:
