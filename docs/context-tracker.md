@@ -786,3 +786,13 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 
 - Baseline test suite passed: `python -m pytest test/ -v --timeout=30` (82 tests).
 - The first PR CI run exposed two vulnerable legacy pins in `requirements.txt` (`aiohttp==3.9.5` and `setuptools==69.5.1`); both were updated to fixed versions and the package lower bound was raised to `aiohttp >= 3.13.4`.
+
+### GitHub rollout verification
+
+- PR #12 was merged as `a17b7c0` after all required checks passed: Test Python 3.12, Test Python 3.13, Quality, Package, Dependency audit, and CodeQL/Analyze Python.
+- Repository About metadata now has the requested description, PyPI homepage, and nine topics. Squash merging is enabled; merge commits, rebase merges, auto-merge, the Wiki, and Discussions are disabled; branches are deleted after merge.
+- Dependabot vulnerability alerts and automated security fixes are enabled. Private vulnerability reporting is enabled, and CodeQL has produced successful analyses for the pull request and `main`.
+- Actions now default to read-only permissions, require immutable SHA-pinned actions, and allow GitHub-owned plus verified actions. The workflows in this repository use full commit SHAs.
+- `main` protection requires pull requests, one approval, up-to-date required checks, conversation resolution, linear history, and blocks force pushes and deletions. Administrator enforcement remains disabled for the solo-maintainer bypass.
+- The active `Protect release tags` ruleset covers `refs/tags/v*`, blocks creation except for the maintainer bypass, and blocks deletion and non-fast-forward updates.
+- The `testpypi` environment accepts only `main` deployments. The `pypi` environment requires maintainer review and accepts only `v*` tag deployments.
