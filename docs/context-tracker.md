@@ -735,3 +735,26 @@ python3 -m unittest test.test.TestTrafficE2E -v  # verify 3 new E2E tests pass
 | PT (Train) | constants.py, train.py | `passenger_volume_by_od_train_stations`, `passenger_volume_by_train_stations` | 2 unit |
 | Other | constants.py, other.py (new) | `bicycle_parking`, `geospatial_whole_island`, `ev_charging_points`, `ev_charging_points_batch` | 4 unit + 1 E2E |
 
+## — Dependabot PR refresh and TestPyPI duplicate handling (2026-08-04) —
+
+### Findings
+
+- Dependabot PRs #2 (`actions/download-artifact` v4 to v8) and #4 (`actions/upload-artifact` v4 to v7) are stale against current `main`.
+- Their historical failed `Build distribution` checks were caused by the sdist test failure fixed by the existing packaging exclusion change, not by the action upgrades.
+- Dependabot rebase requests were issued for both PRs so GitHub can regenerate checks against current `main`.
+- TestPyPI publishing runs on every non-tag push to `main`. Dependency-only merges can leave the package at version `1.0.0`, causing TestPyPI to reject reused filenames with HTTP 400.
+
+### Decision
+
+- Add `skip-existing: true` only to the TestPyPI publisher. This makes repeated smoke publishes idempotent while keeping production PyPI duplicate detection strict.
+- The workflow change remains local and uncommitted pending explicit approval to commit and push it.
+
+### Verification
+
+- The two Dependabot rebase-triggered `Build distribution` runs completed successfully: PR #2 run `30922575598` and PR #4 run `30922577547`.
+- The missing GitHub `dependencies` label was created to match `.github/dependabot.yml`.
+- Local `python -m pytest test/test_sdk_packaging.py -v` passed all 11 tests after serial execution; concurrent packaging runs are unsafe because they share `dist/`.
+
+### Rollout
+
+- User approved committing and pushing the TestPyPI workflow fix; the change is now staged for the remote rollout.
