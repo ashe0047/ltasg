@@ -41,7 +41,7 @@ dev = [
   "python-dotenv >= 1.2",
   "python-semantic-release == 10.6.1",
   "ruff == 0.15.21",
-  "twine >= 6.1",
+  "twine >= 7.0.0",
 ]
 
 [project.urls]
